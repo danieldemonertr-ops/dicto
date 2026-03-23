@@ -11,14 +11,17 @@
     "tokens:check": "tsx src/design-system/check-tokens.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.80.0",
     "@auth/prisma-adapter": "^2.11.1",
     "@prisma/client": "^6.19.2",
+    "@tanstack/react-query": "^5.95.0",
     "next": "16.2.1",
     "next-auth": "^5.0.0-beta.30",
     "prisma": "^6.19.2",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "stripe": "^20.4.1"
+    "stripe": "^20.4.1",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
