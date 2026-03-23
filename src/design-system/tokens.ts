@@ -10,6 +10,16 @@ export const colors = {
   border: "#E5E7EB",
   error: "#EF4444",
   success: "#22C55E",
+  warning: "#FBBF24",      // amarelo — score médio, melhoria
+  successBg: "#DCFCE7",    // fundo feedback positivo
+  successText: "#166534",  // texto feedback positivo
+  warningBg: "#FEF9C3",    // fundo feedback de cancelamento
+  warningText: "#854D0E",  // texto feedback de cancelamento
+  // Google brand colors — usados apenas no ícone SVG do botão de login
+  googleBlue: "#4285F4",
+  googleGreen: "#34A853",
+  googleYellow: "#FBBC05",
+  googleRed: "#EA4335",
 } as const;
 
 export const radius = {

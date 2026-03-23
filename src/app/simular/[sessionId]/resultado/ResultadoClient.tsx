@@ -17,7 +17,7 @@ function ScoreRing({ score }: { score: number }) {
   const offset = circumference - (score / 100) * circumference;
 
   const color =
-    score >= 75 ? "var(--color-primary)" : score >= 50 ? "#FBBF24" : "var(--color-error)";
+    score >= 75 ? "var(--color-primary)" : score >= 50 ? "var(--color-warning)" : "var(--color-error)";
 
   return (
     <div className="relative flex items-center justify-center" style={{ width: 128, height: 128 }}>
@@ -113,7 +113,7 @@ export function ResultadoClient({ sessionId, jobTitle, company, score, strongPoi
           >
             <div className="flex items-center gap-2">
               <span className="text-lg">🎯</span>
-              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#FBBF24" }}>
+              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--color-warning)" }}>
                 O que melhorar
               </p>
             </div>

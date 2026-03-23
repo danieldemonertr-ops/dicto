@@ -64,12 +64,12 @@ export function BillingClient({
 
         {/* Feedback de redirecionamento Stripe */}
         {success && (
-          <div className="rounded-xl px-4 py-3 text-sm font-medium" style={{ background: "#dcfce7", color: "#166534" }}>
+          <div className="rounded-xl px-4 py-3 text-sm font-medium" style={{ background: "var(--color-successBg)", color: "var(--color-successText)" }}>
             ✅ Assinatura ativada! Bem-vindo ao Dicto PRO.
           </div>
         )}
         {canceled && (
-          <div className="rounded-xl px-4 py-3 text-sm" style={{ background: "#fef9c3", color: "#854d0e" }}>
+          <div className="rounded-xl px-4 py-3 text-sm" style={{ background: "var(--color-warningBg)", color: "var(--color-warningText)" }}>
             Pagamento cancelado. Sua assinatura não foi alterada.
           </div>
         )}

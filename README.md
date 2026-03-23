@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Dicto
 
-## Getting Started
+> O fonoaudiólogo e coach de oratória no bolso do universitário.
 
-First, run the development server:
+Simulador de entrevistas de estágio com IA. O Dicto gera perguntas personalizadas por vaga e empresa e entrega feedback específico e acionável — sem cadastro obrigatório.
+
+## Stack
+
+| Camada | Tecnologia |
+|---|---|
+| Framework | Next.js 16 (App Router) |
+| Linguagem | TypeScript strict |
+| Estilo | Tailwind CSS 4 + Design System próprio |
+| Banco | PostgreSQL via Neon (Prisma 6) |
+| Auth | Auth.js v5 (Google OAuth + Email Magic Link) |
+| IA | Claude API (claude-sonnet) |
+| Pagamentos | Stripe SDK v20 |
+| Email | Resend |
+| Deploy | Vercel |
+
+## Planos
+
+| | Gratuito | TRIAL | PRO |
+|---|---|---|---|
+| Simulações | 2/mês | Ilimitadas (14 dias) | Ilimitadas |
+| Histórico | — | — | ✓ |
+| Preço | R$ 0 | Grátis | R$ 19,90/mês |
+
+## Setup local
 
 ```bash
+# 1. Clone e instale
+git clone https://github.com/danieldemonertr-ops/dicto
+cd dicto
+npm install
+
+# 2. Configure as variáveis de ambiente
+cp .env.example .env
+# Preencha os valores no .env
+
+# 3. Sincronize o banco
+npx prisma db push
+
+# 4. Rode o servidor
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Scripts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run dev          # Servidor de desenvolvimento
+npm run build        # Build de produção
+npm run tokens       # Gera CSS variables dos design tokens
+npm run tokens:check # Verifica se há hex hardcoded nos componentes
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Variáveis de ambiente
 
-## Learn More
+Veja `.env.example` para a lista completa com instruções de onde obter cada chave.
 
-To learn more about Next.js, take a look at the following resources:
+## Estrutura
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+src/
+├── app/
+│   ├── api/
+│   │   ├── auth/           # Auth.js route handler
+│   │   ├── simulation/     # Start, answer, complete
+│   │   └── stripe/         # Checkout, portal, webhook
+│   ├── simular/            # Tela 1: entrada
+│   │   └── [sessionId]/    # Tela 2: simulação
+│   │       └── resultado/  # Tela 3: feedback
+│   ├── settings/billing/   # Plano e cobrança
+│   └── login/              # Auth pages
+├── components/
+│   └── PaywallGate.tsx
+├── design-system/          # Tokens, utils, generate-css
+└── lib/
+    ├── auth.ts             # Auth.js config
+    ├── claude.ts           # Claude API (perguntas + análise)
+    ├── limits.ts           # PLAN_LIMITS, checkUsageLimit
+    ├── prisma.ts           # Prisma client singleton
+    ├── stripe.ts           # Stripe client
+    └── subscription.ts     # isTrialActive, hasAccess, etc.
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Etapas de build concluídas
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [x] Etapa 0 — Infraestrutura (GitHub + Vercel + Neon + hello world)
+- [x] Etapa 1 — Schema do banco (Prisma + Design System)
+- [x] Etapa 2 — Autenticação (Auth.js v5)
+- [x] Etapa 3 — Trial e assinatura (subscription.ts + webhook Stripe)
+- [x] Etapa 4 — Paywall e limites (PLAN_LIMITS + PaywallGate)
+- [x] Etapa 5 — Stripe (Checkout + Customer Portal + billing page)
+- [x] Etapa 6 — Features do produto (3 telas + Claude API)
+- [x] Etapa 7 — Landing page (Hero + Features + Pricing + Footer)
+- [x] Etapa 8 — Screenshots nas telas
+- [x] Etapa 9 — Configuração final

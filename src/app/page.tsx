@@ -183,7 +183,7 @@ const SCREENS = [
           <div className="text-xs" style={{ color: "var(--color-textPrimary)" }}>Comunicação clara e interesse genuíno pela vaga.</div>
         </div>
         <div className="w-full rounded-xl p-3" style={{ background: "var(--color-surface)", boxShadow: "var(--shadow-sm)" }}>
-          <div className="text-xs font-semibold mb-1" style={{ color: "#FBBF24" }}>🎯 O QUE MELHORAR</div>
+          <div className="text-xs font-semibold mb-1" style={{ color: "var(--color-warning)" }}>🎯 O QUE MELHORAR</div>
           <div className="text-xs" style={{ color: "var(--color-textPrimary)" }}>Traga exemplos concretos nas suas respostas.</div>
         </div>
         <div className="w-full rounded-xl py-2 text-center text-xs font-semibold" style={{ background: "var(--color-primary)", color: "var(--color-textPrimary)" }}>
