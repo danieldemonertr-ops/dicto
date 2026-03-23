@@ -112,6 +112,133 @@ function Features() {
   );
 }
 
+// ─── Seção: Screenshots ──────────────────────────────────────────────────────
+const SCREENS = [
+  {
+    label: "1. Configure",
+    title: "Informe a vaga e empresa",
+    preview: (
+      <div className="flex flex-col gap-3 p-4">
+        <div className="flex flex-col gap-1">
+          <div className="text-xs font-medium" style={{ color: "var(--color-textSecondary)" }}>Vaga</div>
+          <div className="rounded-lg border px-3 py-2 text-sm" style={{ borderColor: "var(--color-border)", color: "var(--color-textPrimary)" }}>Estágio em Marketing</div>
+        </div>
+        <div className="flex flex-col gap-1">
+          <div className="text-xs font-medium" style={{ color: "var(--color-textSecondary)" }}>Empresa</div>
+          <div className="rounded-lg border px-3 py-2 text-sm" style={{ borderColor: "var(--color-border)", color: "var(--color-textPrimary)" }}>Google</div>
+        </div>
+        <div className="flex flex-col gap-1">
+          <div className="text-xs font-medium" style={{ color: "var(--color-textSecondary)" }}>Nível de experiência</div>
+          <div className="rounded-lg border px-3 py-2 text-sm" style={{ borderColor: "var(--color-border)", color: "var(--color-textPrimary)" }}>Nenhuma experiência</div>
+        </div>
+        <div className="rounded-xl py-2.5 text-center text-sm font-semibold mt-1" style={{ background: "var(--color-primary)", color: "var(--color-textPrimary)" }}>
+          Iniciar simulação →
+        </div>
+      </div>
+    ),
+  },
+  {
+    label: "2. Responda",
+    title: "Uma pergunta por vez",
+    preview: (
+      <div className="flex flex-col gap-3 p-4">
+        <div className="flex justify-between items-center">
+          <div className="text-xs" style={{ color: "var(--color-textSecondary)" }}>Estágio em Marketing · Google</div>
+          <div className="text-xs font-semibold" style={{ color: "var(--color-textSecondary)" }}>2/6</div>
+        </div>
+        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--color-border)" }}>
+          <div className="h-full rounded-full" style={{ width: "33%", background: "var(--color-primary)" }} />
+        </div>
+        <div className="rounded-xl p-3" style={{ background: "var(--color-surface)", boxShadow: "var(--shadow-sm)" }}>
+          <div className="text-xs font-semibold mb-1" style={{ color: "var(--color-primary)" }}>Pergunta 2</div>
+          <div className="text-sm font-medium" style={{ color: "var(--color-textPrimary)" }}>Por que você quer trabalhar no Google?</div>
+        </div>
+        <div className="rounded-xl border px-3 py-2 text-sm" style={{ borderColor: "var(--color-border)", color: "var(--color-textSecondary)", minHeight: 64 }}>
+          Sempre admirei a cultura de inovação do Google...
+        </div>
+        <div className="rounded-xl py-2.5 text-center text-sm font-semibold" style={{ background: "var(--color-primary)", color: "var(--color-textPrimary)" }}>
+          Próxima pergunta →
+        </div>
+      </div>
+    ),
+  },
+  {
+    label: "3. Receba feedback",
+    title: "Score e insights acionáveis",
+    preview: (
+      <div className="flex flex-col gap-3 p-4 items-center">
+        <div className="relative flex items-center justify-center" style={{ width: 80, height: 80 }}>
+          <svg width={80} height={80} style={{ transform: "rotate(-90deg)" }}>
+            <circle cx={40} cy={40} r={32} fill="none" stroke="var(--color-border)" strokeWidth={6} />
+            <circle cx={40} cy={40} r={32} fill="none" stroke="var(--color-primary)" strokeWidth={6}
+              strokeDasharray={201} strokeDashoffset={36} strokeLinecap="round" />
+          </svg>
+          <div className="absolute text-center">
+            <span className="text-xl font-bold" style={{ color: "var(--color-textPrimary)" }}>82</span>
+            <span className="text-xs block" style={{ color: "var(--color-textSecondary)" }}>/100</span>
+          </div>
+        </div>
+        <div className="w-full rounded-xl p-3" style={{ background: "var(--color-surface)", boxShadow: "var(--shadow-sm)" }}>
+          <div className="text-xs font-semibold mb-1" style={{ color: "var(--color-primary)" }}>💪 PONTO FORTE</div>
+          <div className="text-xs" style={{ color: "var(--color-textPrimary)" }}>Comunicação clara e interesse genuíno pela vaga.</div>
+        </div>
+        <div className="w-full rounded-xl p-3" style={{ background: "var(--color-surface)", boxShadow: "var(--shadow-sm)" }}>
+          <div className="text-xs font-semibold mb-1" style={{ color: "#FBBF24" }}>🎯 O QUE MELHORAR</div>
+          <div className="text-xs" style={{ color: "var(--color-textPrimary)" }}>Traga exemplos concretos nas suas respostas.</div>
+        </div>
+        <div className="w-full rounded-xl py-2 text-center text-xs font-semibold" style={{ background: "var(--color-primary)", color: "var(--color-textPrimary)" }}>
+          Praticar novamente
+        </div>
+      </div>
+    ),
+  },
+];
+
+function Screenshots() {
+  return (
+    <section className="px-4 py-20">
+      <div className="max-w-4xl mx-auto flex flex-col gap-12">
+        <div className="text-center flex flex-col gap-3">
+          <h2 className="text-3xl font-bold" style={{ color: "var(--color-textPrimary)" }}>
+            Veja como é simples
+          </h2>
+          <p className="text-base" style={{ color: "var(--color-textSecondary)" }}>
+            Três telas. Zero complicação.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          {SCREENS.map((screen) => (
+            <div key={screen.label} className="flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <span
+                  className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                  style={{ background: "var(--color-primary)", color: "var(--color-textPrimary)" }}
+                >
+                  {screen.label}
+                </span>
+              </div>
+              <p className="text-sm font-semibold" style={{ color: "var(--color-textPrimary)" }}>
+                {screen.title}
+              </p>
+              <div
+                className="rounded-2xl overflow-hidden border"
+                style={{
+                  background: "var(--color-bg)",
+                  borderColor: "var(--color-border)",
+                  boxShadow: "var(--shadow-lg)",
+                }}
+              >
+                {screen.preview}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ─── Seção: Como funciona ─────────────────────────────────────────────────────
 const STEPS = [
   { step: "1", title: "Configure a simulação", desc: "Informe a vaga, empresa e seu nível de experiência." },
@@ -306,6 +433,7 @@ export default function Home() {
     <div style={{ background: "var(--color-bg)" }}>
       <Hero />
       <Features />
+      <Screenshots />
       <HowItWorks />
       <Pricing />
       <Footer />
