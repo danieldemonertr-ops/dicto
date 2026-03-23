@@ -6,10 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "tokens": "tsx src/design-system/generate-css.ts",
+    "tokens:check": "tsx src/design-system/check-tokens.ts"
   },
   "dependencies": {
+    "@auth/prisma-adapter": "^2.11.1",
+    "@prisma/client": "^6.19.2",
     "next": "16.2.1",
+    "next-auth": "^5.0.0-beta.30",
+    "prisma": "^6.19.2",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
@@ -21,6 +27,8 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
     "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }
