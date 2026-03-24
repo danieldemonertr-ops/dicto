@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 
 const CONTEXTO_OPTIONS = [
   { value: "TURMA", label: "Turma da faculdade", emoji: "🎓" },
@@ -27,7 +26,6 @@ const TOM_OPTIONS = [
 
 export default function ApresentacaoPessoalNovaPage() {
   const router = useRouter();
-  const { status } = useSession();
   const [contexto, setContexto] = useState("");
   const [numeroPessoas, setNumeroPessoas] = useState("");
   const [tom, setTom] = useState("");
@@ -35,37 +33,11 @@ export default function ApresentacaoPessoalNovaPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    try {
-      const raw = sessionStorage.getItem("dicto_form_pendente");
-      if (!raw) return;
-      const saved = JSON.parse(raw);
-      if (saved.tipo !== "APRESENTACAO_PESSOAL") return;
-      if (saved.contexto) setContexto(saved.contexto);
-      if (saved.numeroPessoas) setNumeroPessoas(saved.numeroPessoas);
-      if (saved.tom) setTom(saved.tom);
-      if (saved.destaques) setDestaques(saved.destaques);
-      sessionStorage.removeItem("dicto_form_pendente");
-    } catch { /* noop */ }
-  }, []);
-
   const canSubmit = contexto && numeroPessoas && tom;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!canSubmit || loading) return;
-
-    if (status === "unauthenticated") {
-      try {
-        sessionStorage.setItem("dicto_form_pendente", JSON.stringify({
-          tipo: "APRESENTACAO_PESSOAL",
-          contexto, numeroPessoas, tom, destaques: destaques.trim(),
-        }));
-      } catch { /* noop */ }
-      router.push("/login?callbackUrl=" + encodeURIComponent("/simulador/apresentacao-pessoal/nova"));
-      return;
-    }
-
     setLoading(true); setError("");
     try {
       const res = await fetch("/api/simulation/apresentacao-pessoal", {
@@ -154,7 +126,7 @@ export default function ApresentacaoPessoalNovaPage() {
           </div>
 
           {error && <p className="text-sm text-center" style={{ color: "var(--color-error)" }}>{error}</p>}
-          <button type="submit" disabled={!canSubmit || loading || status === "loading"}
+          <button type="submit" disabled={!canSubmit || loading}
             className="w-full rounded-xl py-3.5 text-sm font-semibold transition-opacity disabled:opacity-40"
             style={{ background: "var(--color-primary)", color: "white" }}>
             {loading ? "Gerando situações com IA..." : "Iniciar apresentação →"}

@@ -13,23 +13,19 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [contextoPendente, setContextoPendente] = useState<ContextoPendente | null>(null);
-  const [formPendente, setFormPendente] = useState(false);
   const [callbackUrl, setCallbackUrl] = useState("/dashboard");
+  const [isLocalhost, setIsLocalhost] = useState(false);
 
   useEffect(() => {
     try {
-      // Lê callbackUrl da query string
       const params = new URLSearchParams(window.location.search);
       const cb = params.get("callbackUrl");
       if (cb && cb.startsWith("/")) setCallbackUrl(cb);
 
-      // Verifica se há dados de formulário salvos
-      const rawForm = sessionStorage.getItem("dicto_form_pendente");
-      if (rawForm) setFormPendente(true);
-
-      // Verifica contexto escolhido no hub
       const rawCtx = sessionStorage.getItem("dicto_contexto_pendente");
       if (rawCtx) setContextoPendente(JSON.parse(rawCtx));
+
+      setIsLocalhost(window.location.hostname === "localhost");
     } catch {
       // sessionStorage pode estar indisponível (SSR ou modo privado)
     }
@@ -53,11 +49,7 @@ export default function LoginPage() {
           <h1 className="text-xl font-bold" style={{ color: "var(--color-textPrimary)" }}>
             Entre para começar seu treino
           </h1>
-          {formPendente ? (
-            <p className="text-sm mt-1" style={{ color: "var(--color-primary)" }}>
-              Seus dados foram salvos — entre para ver o resultado
-            </p>
-          ) : contextoPendente ? (
+          {contextoPendente ? (
             <p className="text-sm mt-1" style={{ color: "var(--color-primary)" }}>
               Você escolheu: <strong>{contextoPendente.label}</strong>
             </p>
@@ -118,6 +110,19 @@ export default function LoginPage() {
           Ao entrar, você concorda com os{" "}
           <span className="underline cursor-pointer">Termos de Uso</span>
         </p>
+
+        {/* Botão de teste — só aparece em localhost */}
+        {isLocalhost && (
+          <div className="pt-2 border-t" style={{ borderColor: "var(--color-border)" }}>
+            <a
+              href={`/api/auth/dev-login?callbackUrl=${encodeURIComponent(callbackUrl)}`}
+              className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium transition-opacity hover:opacity-80"
+              style={{ background: "var(--color-surface)", border: "1px dashed var(--color-border)", color: "var(--color-textSecondary)" }}
+            >
+              🧪 Entrar como teste (só em localhost)
+            </a>
+          </div>
+        )}
       </div>
     </main>
   );

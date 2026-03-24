@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 
 const EXPERIENCE_OPTIONS = [
   { value: "NO_EXPERIENCE", label: "Nenhuma experiência", desc: "Nunca trabalhei ou estagiei" },
@@ -18,7 +17,6 @@ const PESQUISA_OPTIONS = [
 
 export default function SimuladorNovaPage() {
   const router = useRouter();
-  const { status } = useSession();
   const [jobTitle, setJobTitle] = useState("");
   const [company, setCompany] = useState("");
   const [experienceLevel, setExperienceLevel] = useState("");
@@ -26,42 +24,11 @@ export default function SimuladorNovaPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Restaura dados salvos antes do login
-  useEffect(() => {
-    try {
-      const raw = sessionStorage.getItem("dicto_form_pendente");
-      if (!raw) return;
-      const saved = JSON.parse(raw);
-      if (saved.tipo !== "ENTREVISTA_ESTAGIO") return;
-      if (saved.jobTitle) setJobTitle(saved.jobTitle);
-      if (saved.company) setCompany(saved.company);
-      if (saved.experienceLevel) setExperienceLevel(saved.experienceLevel);
-      if (saved.pesquisaEmpresa) setPesquisaEmpresa(saved.pesquisaEmpresa);
-      sessionStorage.removeItem("dicto_form_pendente");
-    } catch { /* noop */ }
-  }, []);
-
   const canSubmit = jobTitle.trim() && company.trim() && experienceLevel;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!canSubmit || loading) return;
-
-    // Gate de login: salva dados e redireciona se não autenticado
-    if (status === "unauthenticated") {
-      try {
-        sessionStorage.setItem("dicto_form_pendente", JSON.stringify({
-          tipo: "ENTREVISTA_ESTAGIO",
-          jobTitle: jobTitle.trim(),
-          company: company.trim(),
-          experienceLevel,
-          pesquisaEmpresa: pesquisaEmpresa || "",
-        }));
-      } catch { /* noop */ }
-      router.push("/login?callbackUrl=" + encodeURIComponent("/simulador/nova"));
-      return;
-    }
-
     setLoading(true);
     setError("");
 
@@ -227,7 +194,7 @@ export default function SimuladorNovaPage() {
 
           <button
             type="submit"
-            disabled={!canSubmit || loading || status === "loading"}
+            disabled={!canSubmit || loading}
             className="w-full rounded-xl py-3.5 text-sm font-semibold transition-opacity disabled:opacity-40"
             style={{ background: "var(--color-primary)", color: "white" }}
           >

@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 
 const DURACAO_OPTIONS = [
   { value: "ATE_10", label: "Até 10 min" },
@@ -25,7 +24,6 @@ const DOMINIO_OPTIONS = [
 
 export default function SeminarioNovaPage() {
   const router = useRouter();
-  const { status } = useSession();
   const [disciplina, setDisciplina] = useState("");
   const [tema, setTema] = useState("");
   const [duracao, setDuracao] = useState("");
@@ -35,39 +33,11 @@ export default function SeminarioNovaPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    try {
-      const raw = sessionStorage.getItem("dicto_form_pendente");
-      if (!raw) return;
-      const saved = JSON.parse(raw);
-      if (saved.tipo !== "SEMINARIO_INDIVIDUAL") return;
-      if (saved.disciplina) setDisciplina(saved.disciplina);
-      if (saved.tema) setTema(saved.tema);
-      if (saved.duracao) setDuracao(saved.duracao);
-      if (saved.perguntasTurma) setPerguntasTurma(saved.perguntasTurma);
-      if (saved.usaSlides !== undefined) setUsaSlides(saved.usaSlides);
-      if (saved.dominioTema) setDominioTema(saved.dominioTema);
-      sessionStorage.removeItem("dicto_form_pendente");
-    } catch { /* noop */ }
-  }, []);
-
   const canSubmit = disciplina.trim() && tema.trim() && duracao && perguntasTurma && usaSlides !== null && dominioTema;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!canSubmit || loading) return;
-
-    if (status === "unauthenticated") {
-      try {
-        sessionStorage.setItem("dicto_form_pendente", JSON.stringify({
-          tipo: "SEMINARIO_INDIVIDUAL",
-          disciplina: disciplina.trim(), tema: tema.trim(), duracao, perguntasTurma, usaSlides, dominioTema,
-        }));
-      } catch { /* noop */ }
-      router.push("/login?callbackUrl=" + encodeURIComponent("/simulador/seminario/nova"));
-      return;
-    }
-
     setLoading(true);
     setError("");
 
@@ -261,7 +231,7 @@ export default function SeminarioNovaPage() {
 
           <button
             type="submit"
-            disabled={!canSubmit || loading || status === "loading"}
+            disabled={!canSubmit || loading}
             className="w-full rounded-xl py-3.5 text-sm font-semibold transition-opacity disabled:opacity-40"
             style={{ background: "var(--color-primary)", color: "white" }}
           >

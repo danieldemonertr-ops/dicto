@@ -26,7 +26,7 @@ export function middleware(request: NextRequest) {
     const parts = pathname.split("/").filter(Boolean);
     // parts: ['simulador', id, 'simulacao' | 'feedback']
     const isProtected =
-      (parts.length >= 3 && (parts[2] === "simulacao" || parts[2] === "feedback")) ||
+      (parts.length >= 3 && parts[2] === "feedback") ||
       pathname.startsWith("/simulador/historico");
     if (!isProtected) return NextResponse.next();
     if (!sessionToken) {

@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 
 const DURACAO_OPTIONS = [
   { value: "ATE_5", label: "Até 5 min" },
@@ -24,7 +23,6 @@ const PERGUNTAS_OPTIONS = [
 
 export default function ApresentacaoDisciplinaNovaPage() {
   const router = useRouter();
-  const { status } = useSession();
   const [disciplina, setDisciplina] = useState("");
   const [tema, setTema] = useState("");
   const [duracao, setDuracao] = useState("");
@@ -33,38 +31,11 @@ export default function ApresentacaoDisciplinaNovaPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    try {
-      const raw = sessionStorage.getItem("dicto_form_pendente");
-      if (!raw) return;
-      const saved = JSON.parse(raw);
-      if (saved.tipo !== "APRESENTACAO_DISCIPLINA") return;
-      if (saved.disciplina) setDisciplina(saved.disciplina);
-      if (saved.tema) setTema(saved.tema);
-      if (saved.duracao) setDuracao(saved.duracao);
-      if (saved.formato) setFormato(saved.formato);
-      if (saved.perguntasProfessor) setPerguntasProfessor(saved.perguntasProfessor);
-      sessionStorage.removeItem("dicto_form_pendente");
-    } catch { /* noop */ }
-  }, []);
-
   const canSubmit = disciplina.trim() && tema.trim() && duracao && formato && perguntasProfessor;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!canSubmit || loading) return;
-
-    if (status === "unauthenticated") {
-      try {
-        sessionStorage.setItem("dicto_form_pendente", JSON.stringify({
-          tipo: "APRESENTACAO_DISCIPLINA",
-          disciplina: disciplina.trim(), tema: tema.trim(), duracao, formato, perguntasProfessor,
-        }));
-      } catch { /* noop */ }
-      router.push("/login?callbackUrl=" + encodeURIComponent("/simulador/apresentacao-disciplina/nova"));
-      return;
-    }
-
     setLoading(true); setError("");
     try {
       const res = await fetch("/api/simulation/apresentacao-disciplina", {
@@ -156,7 +127,7 @@ export default function ApresentacaoDisciplinaNovaPage() {
           </div>
 
           {error && <p className="text-sm text-center" style={{ color: "var(--color-error)" }}>{error}</p>}
-          <button type="submit" disabled={!canSubmit || loading || status === "loading"}
+          <button type="submit" disabled={!canSubmit || loading}
             className="w-full rounded-xl py-3.5 text-sm font-semibold transition-opacity disabled:opacity-40"
             style={{ background: "var(--color-primary)", color: "white" }}>
             {loading ? "Gerando simulação com IA..." : "Iniciar simulação →"}

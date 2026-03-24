@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 
 const TAMANHO_OPTIONS = [
   { value: "2", label: "2 pessoas" },
@@ -25,7 +24,6 @@ const POSICAO_OPTIONS = [
 
 export default function TrabalhoGrupoNovaPage() {
   const router = useRouter();
-  const { status } = useSession();
   const [disciplina, setDisciplina] = useState("");
   const [tema, setTema] = useState("");
   const [tamanhoGrupo, setTamanhoGrupo] = useState("");
@@ -35,40 +33,11 @@ export default function TrabalhoGrupoNovaPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    try {
-      const raw = sessionStorage.getItem("dicto_form_pendente");
-      if (!raw) return;
-      const saved = JSON.parse(raw);
-      if (saved.tipo !== "TRABALHO_GRUPO") return;
-      if (saved.disciplina) setDisciplina(saved.disciplina);
-      if (saved.tema) setTema(saved.tema);
-      if (saved.tamanhoGrupo) setTamanhoGrupo(saved.tamanhoGrupo);
-      if (saved.suaParte) setSuaParte(saved.suaParte);
-      if (saved.duracao) setDuracao(saved.duracao);
-      if (saved.posicao) setPosicao(saved.posicao);
-      sessionStorage.removeItem("dicto_form_pendente");
-    } catch { /* noop */ }
-  }, []);
-
   const canSubmit = disciplina.trim() && tema.trim() && tamanhoGrupo && suaParte.trim() && duracao && posicao;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!canSubmit || loading) return;
-
-    if (status === "unauthenticated") {
-      try {
-        sessionStorage.setItem("dicto_form_pendente", JSON.stringify({
-          tipo: "TRABALHO_GRUPO",
-          disciplina: disciplina.trim(), tema: tema.trim(), tamanhoGrupo,
-          suaParte: suaParte.trim(), duracao, posicao,
-        }));
-      } catch { /* noop */ }
-      router.push("/login?callbackUrl=" + encodeURIComponent("/simulador/trabalho-grupo/nova"));
-      return;
-    }
-
     setLoading(true); setError("");
     try {
       const res = await fetch("/api/simulation/trabalho-grupo", {
@@ -175,7 +144,7 @@ export default function TrabalhoGrupoNovaPage() {
           </div>
 
           {error && <p className="text-sm text-center" style={{ color: "var(--color-error)" }}>{error}</p>}
-          <button type="submit" disabled={!canSubmit || loading || status === "loading"}
+          <button type="submit" disabled={!canSubmit || loading}
             className="w-full rounded-xl py-3.5 text-sm font-semibold transition-opacity disabled:opacity-40"
             style={{ background: "var(--color-primary)", color: "white" }}>
             {loading ? "Gerando simulação com IA..." : "Iniciar simulação →"}
