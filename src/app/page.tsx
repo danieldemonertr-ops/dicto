@@ -1,173 +1,90 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth";
+import { LandingNav } from "./LandingNav";
+import { FeaturesSection } from "./FeaturesSection";
+import { FooterSection } from "./FooterSection";
 
 // ─── Header ───────────────────────────────────────────────────────────────────
 async function LandingHeader() {
   const session = await auth();
   const isLoggedIn = !!session?.user;
-
-  return (
-    <header
-      className="sticky top-0 z-20 px-6 py-4 flex items-center justify-between"
-      style={{
-        background: "var(--color-bg)",
-        borderBottom: "1px solid var(--color-border)",
-      }}
-    >
-      <Link
-        href="/"
-        className="text-lg font-bold tracking-tight"
-        style={{ color: "var(--color-textPrimary)" }}
-      >
-        Dicto
-      </Link>
-
-      <nav className="flex items-center gap-3">
-        {isLoggedIn ? (
-          <Link
-            href="/dashboard"
-            className="px-4 py-2 rounded-full text-sm font-semibold transition-opacity hover:opacity-80"
-            style={{ background: "var(--color-primary)", color: "var(--color-textPrimary)" }}
-          >
-            Ir para o dashboard →
-          </Link>
-        ) : (
-          <>
-            <Link
-              href="/login"
-              className="text-sm font-medium transition-opacity hover:opacity-70"
-              style={{ color: "var(--color-textSecondary)" }}
-            >
-              Entrar
-            </Link>
-            <Link
-              href="/#planos"
-              className="text-sm font-medium transition-opacity hover:opacity-70"
-              style={{ color: "var(--color-textSecondary)" }}
-            >
-              Planos
-            </Link>
-            <Link
-              href="/hub"
-              className="px-4 py-2 rounded-full text-sm font-semibold transition-opacity hover:opacity-80"
-              style={{ background: "var(--color-primary)", color: "var(--color-textPrimary)" }}
-            >
-              Começar agora
-            </Link>
-          </>
-        )}
-      </nav>
-    </header>
-  );
+  return <LandingNav isLoggedIn={isLoggedIn} />;
 }
 
 // ─── Seção: Hero ──────────────────────────────────────────────────────────────
 function Hero() {
   return (
-    <section className="flex flex-col items-center justify-center text-center px-4 pt-24 pb-20 gap-6">
-      <span
-        className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold"
-        style={{ background: "var(--color-primary)", color: "var(--color-textPrimary)" }}
-      >
-        🤖 Powered by Claude AI
-      </span>
+    <section
+      className="relative flex flex-col items-center justify-center text-center px-4 pt-28 pb-32 gap-6 overflow-hidden"
+      style={{
+        background: "#ffffff",
+        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M 60 0 L 0 0 0 60' fill='none' stroke='%23e5e7eb' stroke-width='0.6'/%3E%3C/svg%3E")`,
+      }}
+    >
+      {/* Green blob */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse 900px 650px at 50% 25%, rgba(29,158,117,0.11) 0%, transparent 65%)",
+        }}
+      />
 
-      <h1
-        className="text-5xl md:text-6xl font-bold leading-tight max-w-2xl"
-        style={{ color: "var(--color-textPrimary)" }}
-      >
-        Treine sua comunicação para o{" "}
-        <span style={{ color: "var(--color-primary)" }}>momento que importa</span>
-      </h1>
-
-      <p
-        className="text-lg md:text-xl max-w-xl leading-relaxed"
-        style={{ color: "var(--color-textSecondary)" }}
-      >
-        Simule entrevistas, seminários e apresentações com IA — e receba feedback
-        específico por resposta
-      </p>
-
-      <div className="flex flex-col sm:flex-row items-center gap-3 mt-2">
-        <Link
-          href="/hub"
-          className="px-8 py-4 rounded-full text-base font-semibold transition-opacity hover:opacity-90"
-          style={{ background: "var(--color-primary)", color: "var(--color-textPrimary)" }}
+      {/* Content */}
+      <div className="relative z-10 flex flex-col items-center gap-6 max-w-3xl">
+        <span
+          className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold border"
+          style={{
+            background: "rgba(29,158,117,0.08)",
+            borderColor: "rgba(29,158,117,0.25)",
+            color: "#1D9E75",
+          }}
         >
-          Começar agora →
-        </Link>
-      </div>
+          🤖 Powered by Claude AI
+        </span>
 
-      {/* Social proof */}
-      <p className="text-sm mt-4" style={{ color: "var(--color-textSecondary)" }}>
-        ✓ Personalizado por vaga &nbsp;·&nbsp; ✓ Feedback em segundos &nbsp;·&nbsp; ✓ Sem coach caro
-      </p>
-    </section>
-  );
-}
+        <h1
+          className="text-5xl md:text-6xl font-bold leading-tight"
+          style={{ color: "#111312" }}
+        >
+          Treine sua comunicação para o{" "}
+          <span style={{ color: "#1D9E75" }}>momento que importa</span>
+        </h1>
 
-// ─── Seção: Features ─────────────────────────────────────────────────────────
-const FEATURES = [
-  {
-    emoji: "🎯",
-    title: "Personalizado para a sua vaga",
-    description:
-      "Digite a vaga, a empresa e seu nível de experiência. A IA gera 6 perguntas reais — do jeito que o recrutador perguntaria.",
-  },
-  {
-    emoji: "💬",
-    title: "Uma pergunta por vez",
-    description:
-      "Sem pressão de ver tudo de uma vez. Responda no seu ritmo, como numa entrevista de verdade. Sem distrações.",
-  },
-  {
-    emoji: "📊",
-    title: "Feedback objetivo e acionável",
-    description:
-      "Score de 0 a 100, ponto forte específico e o que melhorar — com linguagem direta. Sem elogio vazio.",
-  },
-  {
-    emoji: "🔄",
-    title: "Pratique quantas vezes quiser",
-    description:
-      "Cada simulação é única. Mude a empresa, mude a vaga. Quanto mais você pratica, mais natural fica no dia real.",
-  },
-];
+        <p
+          className="text-lg md:text-xl max-w-xl leading-relaxed"
+          style={{ color: "#6B7280" }}
+        >
+          Simule entrevistas, seminários e apresentações com IA — e receba feedback
+          específico por resposta
+        </p>
 
-function Features() {
-  return (
-    <section className="px-4 py-20">
-      <div className="max-w-4xl mx-auto flex flex-col gap-12">
-        <div className="text-center flex flex-col gap-3">
-          <h2 className="text-3xl font-bold" style={{ color: "var(--color-textPrimary)" }}>
-            Tudo que você precisa para chegar preparado
-          </h2>
-          <p className="text-base" style={{ color: "var(--color-textSecondary)" }}>
-            Sem fonoaudiólogo caro. Sem curso genérico. Só prática real.
-          </p>
+        <div className="flex flex-col sm:flex-row items-center gap-3 mt-2">
+          <Link
+            href="/hub"
+            className="px-8 py-4 rounded-full text-base font-semibold transition-opacity hover:opacity-90 text-white shadow-md"
+            style={{ background: "#1D9E75" }}
+          >
+            Começar agora →
+          </Link>
+          <Link
+            href="/#planos"
+            className="px-8 py-4 rounded-full text-base font-medium transition-colors hover:bg-gray-100 border"
+            style={{ borderColor: "#E5E7EB", color: "#6B7280" }}
+          >
+            Ver planos
+          </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {FEATURES.map((f) => (
-            <div
-              key={f.title}
-              className="rounded-2xl p-6 flex flex-col gap-3"
-              style={{ background: "var(--color-surface)", boxShadow: "var(--shadow-md)" }}
-            >
-              <span className="text-3xl">{f.emoji}</span>
-              <h3 className="text-base font-semibold" style={{ color: "var(--color-textPrimary)" }}>
-                {f.title}
-              </h3>
-              <p className="text-sm leading-relaxed" style={{ color: "var(--color-textSecondary)" }}>
-                {f.description}
-              </p>
-            </div>
-          ))}
-        </div>
+        <p className="text-sm mt-2" style={{ color: "#9CA3AF" }}>
+          ✓ Personalizado por vaga &nbsp;·&nbsp; ✓ Feedback em segundos &nbsp;·&nbsp; ✓ Sem coach caro
+        </p>
       </div>
     </section>
   );
 }
+
+// Features section is now FeaturesSection (imported above)
 
 // ─── Seção: Screenshots ──────────────────────────────────────────────────────
 const SCREENS = [
@@ -459,42 +376,19 @@ function Pricing() {
   );
 }
 
-// ─── Footer ───────────────────────────────────────────────────────────────────
-function Footer() {
-  return (
-    <footer
-      className="px-4 py-10 text-center flex flex-col gap-2"
-      style={{ borderTop: "1px solid var(--color-border)" }}
-    >
-      <p className="text-sm font-semibold" style={{ color: "var(--color-textPrimary)" }}>
-        Dicto
-      </p>
-      <p className="text-xs" style={{ color: "var(--color-textSecondary)" }}>
-        O fonoaudiólogo e coach de oratória no bolso do universitário.
-      </p>
-      <div className="flex items-center justify-center gap-4 mt-2 text-xs" style={{ color: "var(--color-textSecondary)" }}>
-        <Link href="/hub" className="hover:underline">Simular</Link>
-        <Link href="/login" className="hover:underline">Entrar</Link>
-        <Link href="/settings/billing" className="hover:underline">Planos</Link>
-      </div>
-      <p className="text-xs mt-3" style={{ color: "var(--color-textSecondary)" }}>
-        © {new Date().getFullYear()} Dicto. Feito com IA para quem quer a vaga.
-      </p>
-    </footer>
-  );
-}
+// Footer is now FooterSection (imported above)
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default async function Home() {
   return (
-    <div style={{ background: "var(--color-bg)" }}>
+    <div style={{ background: "var(--color-bg)" }} className="overflow-x-hidden">
       <LandingHeader />
       <Hero />
-      <Features />
+      <FeaturesSection />
       <Screenshots />
       <HowItWorks />
       <Pricing />
-      <Footer />
+      <FooterSection />
     </div>
   );
 }
