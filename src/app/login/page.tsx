@@ -1,16 +1,44 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+interface ContextoPendente {
+  tipo: string;
+  label: string;
+  onboarding: string;
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [contextoPendente, setContextoPendente] = useState<ContextoPendente | null>(null);
+  const [formPendente, setFormPendente] = useState(false);
+  const [callbackUrl, setCallbackUrl] = useState("/dashboard");
+
+  useEffect(() => {
+    try {
+      // Lê callbackUrl da query string
+      const params = new URLSearchParams(window.location.search);
+      const cb = params.get("callbackUrl");
+      if (cb && cb.startsWith("/")) setCallbackUrl(cb);
+
+      // Verifica se há dados de formulário salvos
+      const rawForm = sessionStorage.getItem("dicto_form_pendente");
+      if (rawForm) setFormPendente(true);
+
+      // Verifica contexto escolhido no hub
+      const rawCtx = sessionStorage.getItem("dicto_contexto_pendente");
+      if (rawCtx) setContextoPendente(JSON.parse(rawCtx));
+    } catch {
+      // sessionStorage pode estar indisponível (SSR ou modo privado)
+    }
+  }, []);
 
   async function handleEmailLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    await signIn("resend", { email, callbackUrl: "/dashboard" });
+    await signIn("resend", { email, callbackUrl });
     setLoading(false);
   }
 
@@ -20,18 +48,29 @@ export default function LoginPage() {
         className="w-full max-w-sm rounded-2xl p-8 flex flex-col gap-6"
         style={{ background: "var(--color-surface)", boxShadow: "var(--shadow-md)" }}
       >
-        <div className="text-center">
-          <h1 className="text-2xl font-bold" style={{ color: "var(--color-textPrimary)" }}>
-            Entrar no Dicto
+        <div className="text-center flex flex-col gap-1">
+          <p className="text-2xl font-bold">🎙️</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-textPrimary)" }}>
+            Entre para começar seu treino
           </h1>
-          <p className="text-sm mt-1" style={{ color: "var(--color-textSecondary)" }}>
-            Pratique sua entrevista com IA
-          </p>
+          {formPendente ? (
+            <p className="text-sm mt-1" style={{ color: "var(--color-primary)" }}>
+              Seus dados foram salvos — entre para ver o resultado
+            </p>
+          ) : contextoPendente ? (
+            <p className="text-sm mt-1" style={{ color: "var(--color-primary)" }}>
+              Você escolheu: <strong>{contextoPendente.label}</strong>
+            </p>
+          ) : (
+            <p className="text-sm mt-1" style={{ color: "var(--color-textSecondary)" }}>
+              Treine sua comunicação para o momento que importa
+            </p>
+          )}
         </div>
 
         {/* Google */}
         <button
-          onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+          onClick={() => signIn("google", { callbackUrl })}
           className="w-full flex items-center justify-center gap-3 rounded-xl border py-3 text-sm font-medium transition-colors hover:bg-gray-50"
           style={{ borderColor: "var(--color-border)", color: "var(--color-textPrimary)" }}
         >
@@ -74,6 +113,11 @@ export default function LoginPage() {
             {loading ? "Enviando..." : "Entrar com e-mail"}
           </button>
         </form>
+
+        <p className="text-center text-xs" style={{ color: "var(--color-textSecondary)" }}>
+          Ao entrar, você concorda com os{" "}
+          <span className="underline cursor-pointer">Termos de Uso</span>
+        </p>
       </div>
     </main>
   );

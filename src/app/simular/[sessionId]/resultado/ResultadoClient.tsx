@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 type Props = {
@@ -10,6 +11,66 @@ type Props = {
   strongPoint: string;
   improvementPoint: string;
 };
+
+function CopyModal({ text, onClose }: { text: string; onClose: () => void }) {
+  const [copied, setCopied] = useState(false);
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+    } catch {
+      // clipboard ainda indisponível — usuário copia manualmente
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: "rgba(0,0,0,0.4)" }}
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-sm rounded-2xl p-6 flex flex-col gap-4"
+        style={{ background: "var(--color-surface)", boxShadow: "var(--shadow-lg)" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-semibold" style={{ color: "var(--color-textPrimary)" }}>
+            Compartilhar resultado
+          </p>
+          <button
+            onClick={onClose}
+            className="text-lg leading-none"
+            style={{ color: "var(--color-textSecondary)" }}
+          >
+            ✕
+          </button>
+        </div>
+
+        <textarea
+          readOnly
+          value={text}
+          rows={4}
+          className="w-full rounded-xl p-3 text-sm resize-none outline-none"
+          style={{
+            background: "var(--color-bg)",
+            border: "1px solid var(--color-border)",
+            color: "var(--color-textPrimary)",
+          }}
+        />
+
+        <button
+          onClick={handleCopy}
+          className="w-full rounded-xl py-3 text-sm font-semibold transition-opacity hover:opacity-90"
+          style={{ background: "var(--color-primary)", color: "var(--color-textPrimary)" }}
+        >
+          {copied ? "Copiado ✓" : "Copiar texto"}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 function ScoreRing({ score }: { score: number }) {
   const radius = 52;
@@ -50,19 +111,31 @@ function ScoreRing({ score }: { score: number }) {
 
 export function ResultadoClient({ sessionId, jobTitle, company, score, strongPoint, improvementPoint }: Props) {
   const router = useRouter();
+  const [showModal, setShowModal] = useState(false);
 
-  const shareText = `Acabei de simular minha entrevista para ${jobTitle} na ${company} com o Dicto e tirei ${score}/100! 🚀`;
+  const shareText = `Acabei de simular minha entrevista para ${jobTitle} na ${company} com o Dicto e tirei ${score}/100! 🚀\n${typeof window !== "undefined" ? window.location.href : ""}`;
 
   async function handleShare() {
     if (navigator.share) {
-      await navigator.share({ text: shareText, url: window.location.href });
-    } else {
-      await navigator.clipboard.writeText(shareText + " " + window.location.href);
+      try {
+        await navigator.share({ text: shareText, url: window.location.href });
+        return;
+      } catch {
+        // usuário cancelou ou share falhou — cai no fallback
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(shareText);
       alert("Link copiado!");
+    } catch {
+      // clipboard bloqueado (ex: localhost sem HTTPS) — abre modal
+      setShowModal(true);
     }
   }
 
   return (
+    <>
+    {showModal && <CopyModal text={shareText} onClose={() => setShowModal(false)} />}
     <main className="flex min-h-screen flex-col items-center justify-center px-4 py-12" style={{ background: "var(--color-bg)" }}>
       <div className="w-full max-w-lg flex flex-col gap-6">
         {/* Header */}
@@ -143,5 +216,6 @@ export function ResultadoClient({ sessionId, jobTitle, company, score, strongPoi
         </div>
       </div>
     </main>
+    </>
   );
 }

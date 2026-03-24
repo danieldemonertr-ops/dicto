@@ -32,11 +32,38 @@ model User {
   simulationsThisMonth Int      @default(0)
   simulationsResetAt   DateTime @default(now())
 
+  // Onboarding
+  onboardingCompletedAt DateTime?
+
   accounts    Account[]
   sessions    Session[]
   simulations SimulationSession[]
+  profile     UserProfile?
 
   @@map("users")
+}
+
+model UserProfile {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Step 1 — contexto de uso
+  contextos          String[]
+
+  // Step 2 — perfil profissional
+  curso              String?
+  semestre           String?
+  formado            Boolean  @default(false)
+  nivelAutopercebido String?
+
+  // Step 3 — objetivo imediato
+  objetivoImediato   String?
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("user_profiles")
 }
 
 model Account {
@@ -90,12 +117,20 @@ enum Plan {
 model SimulationSession {
   id               String   @id @default(cuid())
   userId           String?
-  jobTitle         String
-  company          String
-  experienceLevel  ExperienceLevel
+  tipo             String   @default("ENTREVISTA_ESTAGIO") // "ENTREVISTA_ESTAGIO" | "SEMINARIO_INDIVIDUAL"
+  config           Json?    // dados específicos do contexto
+
+  // campos legados — entrevista de estágio
+  jobTitle         String   @default("")
+  company          String   @default("")
+  experienceLevel  ExperienceLevel @default(NO_EXPERIENCE)
+  pesquisaEmpresa  String?
+
   score            Int?
   strongPoint      String?  @db.Text
   improvementPoint String?  @db.Text
+  dicaAcionavel    String?  @db.Text
+  resumoGeral      String?  @db.Text
   completedAt      DateTime?
   createdAt        DateTime @default(now())
 

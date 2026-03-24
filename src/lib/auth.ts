@@ -27,6 +27,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       session.user.id = user.id;
       session.user.plan = (user as unknown as { plan: Plan }).plan;
       session.user.trialEndsAt = (user as unknown as { trialEndsAt: Date | null }).trialEndsAt;
+      session.user.onboardingCompletedAt = (user as unknown as { onboardingCompletedAt: Date | null }).onboardingCompletedAt;
       return session;
     },
   },

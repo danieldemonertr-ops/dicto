@@ -1,4 +1,65 @@
 import Link from "next/link";
+import { auth } from "@/lib/auth";
+
+// ─── Header ───────────────────────────────────────────────────────────────────
+async function LandingHeader() {
+  const session = await auth();
+  const isLoggedIn = !!session?.user;
+
+  return (
+    <header
+      className="sticky top-0 z-20 px-6 py-4 flex items-center justify-between"
+      style={{
+        background: "var(--color-bg)",
+        borderBottom: "1px solid var(--color-border)",
+      }}
+    >
+      <Link
+        href="/"
+        className="text-lg font-bold tracking-tight"
+        style={{ color: "var(--color-textPrimary)" }}
+      >
+        Dicto
+      </Link>
+
+      <nav className="flex items-center gap-3">
+        {isLoggedIn ? (
+          <Link
+            href="/dashboard"
+            className="px-4 py-2 rounded-full text-sm font-semibold transition-opacity hover:opacity-80"
+            style={{ background: "var(--color-primary)", color: "var(--color-textPrimary)" }}
+          >
+            Ir para o dashboard →
+          </Link>
+        ) : (
+          <>
+            <Link
+              href="/login"
+              className="text-sm font-medium transition-opacity hover:opacity-70"
+              style={{ color: "var(--color-textSecondary)" }}
+            >
+              Entrar
+            </Link>
+            <Link
+              href="/#planos"
+              className="text-sm font-medium transition-opacity hover:opacity-70"
+              style={{ color: "var(--color-textSecondary)" }}
+            >
+              Planos
+            </Link>
+            <Link
+              href="/hub"
+              className="px-4 py-2 rounded-full text-sm font-semibold transition-opacity hover:opacity-80"
+              style={{ background: "var(--color-primary)", color: "var(--color-textPrimary)" }}
+            >
+              Começar agora
+            </Link>
+          </>
+        )}
+      </nav>
+    </header>
+  );
+}
 
 // ─── Seção: Hero ──────────────────────────────────────────────────────────────
 function Hero() {
@@ -15,30 +76,26 @@ function Hero() {
         className="text-5xl md:text-6xl font-bold leading-tight max-w-2xl"
         style={{ color: "var(--color-textPrimary)" }}
       >
-        Pratique sua entrevista{" "}
-        <span style={{ color: "var(--color-primary)" }}>antes do dia</span>{" "}
-        que importa.
+        Treine sua comunicação para o{" "}
+        <span style={{ color: "var(--color-primary)" }}>momento que importa</span>
       </h1>
 
       <p
         className="text-lg md:text-xl max-w-xl leading-relaxed"
         style={{ color: "var(--color-textSecondary)" }}
       >
-        O Dicto simula entrevistas de estágio reais com perguntas personalizadas
-        por vaga e empresa — e entrega feedback específico e acionável em minutos.
+        Simule entrevistas, seminários e apresentações com IA — e receba feedback
+        específico por resposta
       </p>
 
       <div className="flex flex-col sm:flex-row items-center gap-3 mt-2">
         <Link
-          href="/simular"
+          href="/hub"
           className="px-8 py-4 rounded-full text-base font-semibold transition-opacity hover:opacity-90"
           style={{ background: "var(--color-primary)", color: "var(--color-textPrimary)" }}
         >
-          Simular agora — é grátis →
+          Começar agora →
         </Link>
-        <p className="text-sm" style={{ color: "var(--color-textSecondary)" }}>
-          Sem cadastro obrigatório
-        </p>
       </div>
 
       {/* Social proof */}
@@ -280,7 +337,7 @@ function HowItWorks() {
 
         <div className="text-center">
           <Link
-            href="/simular"
+            href="/hub"
             className="inline-block px-8 py-4 rounded-full text-base font-semibold transition-opacity hover:opacity-90"
             style={{ background: "var(--color-primary)", color: "var(--color-textPrimary)" }}
           >
@@ -328,7 +385,7 @@ const PLANS = [
 
 function Pricing() {
   return (
-    <section className="px-4 py-20">
+    <section id="planos" className="px-4 py-20">
       <div className="max-w-3xl mx-auto flex flex-col gap-12">
         <div className="text-center flex flex-col gap-3">
           <h2 className="text-3xl font-bold" style={{ color: "var(--color-textPrimary)" }}>
@@ -416,7 +473,7 @@ function Footer() {
         O fonoaudiólogo e coach de oratória no bolso do universitário.
       </p>
       <div className="flex items-center justify-center gap-4 mt-2 text-xs" style={{ color: "var(--color-textSecondary)" }}>
-        <Link href="/simular" className="hover:underline">Simular</Link>
+        <Link href="/hub" className="hover:underline">Simular</Link>
         <Link href="/login" className="hover:underline">Entrar</Link>
         <Link href="/settings/billing" className="hover:underline">Planos</Link>
       </div>
@@ -428,9 +485,10 @@ function Footer() {
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-export default function Home() {
+export default async function Home() {
   return (
     <div style={{ background: "var(--color-bg)" }}>
+      <LandingHeader />
       <Hero />
       <Features />
       <Screenshots />

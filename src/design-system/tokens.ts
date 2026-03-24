@@ -2,8 +2,9 @@
 // Zero hex hardcoded nos componentes. Sempre use os tokens deste arquivo.
 
 export const colors = {
-  primary: "#5DE08A",      // verde Dicto
-  bg: "#F7F7F2",           // fundo off-white
+  primary: "#1D9E75",      // teal Dicto
+  accent: "#534AB7",       // roxo — destaque secundário
+  bg: "#F5F5F0",           // fundo off-white
   surface: "#FFFFFF",      // cards
   textPrimary: "#111312",  // texto principal
   textSecondary: "#6B7280",// texto secundário

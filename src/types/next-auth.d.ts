@@ -7,6 +7,7 @@ declare module "next-auth" {
       id: string;
       plan: Plan;
       trialEndsAt: Date | null;
+      onboardingCompletedAt: Date | null;
     } & DefaultSession["user"];
   }
 }

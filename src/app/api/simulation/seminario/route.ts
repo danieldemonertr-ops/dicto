@@ -2,15 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { generateQuestions } from "@/lib/claude";
+import { generateSeminarioQuestions } from "@/lib/claude";
 import { checkUsageLimit } from "@/lib/limits";
-import { ExperienceLevel } from "@prisma/client";
 
 const schema = z.object({
-  jobTitle: z.string().min(2).max(100),
-  company: z.string().min(2).max(100),
-  experienceLevel: z.nativeEnum(ExperienceLevel),
-  pesquisaEmpresa: z.enum(["SIM_BASTANTE", "UM_POUCO", "NAO_AINDA"]).optional(),
+  disciplina: z.string().min(2).max(100),
+  tema: z.string().min(2).max(200),
+  duracao: z.enum(["ATE_10", "10_A_20", "20_A_40", "MAIS_40"]),
+  perguntasTurma: z.enum(["SIM", "NAO_SEI", "NAO"]),
+  usaSlides: z.boolean(),
+  dominioTema: z.enum(["POUCO", "RAZOAVEL", "BEM"]),
 });
 
 export async function POST(req: NextRequest) {
@@ -20,25 +21,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Dados inválidos", details: parsed.error.flatten() }, { status: 400 });
   }
 
-  const { jobTitle, company, experienceLevel, pesquisaEmpresa } = parsed.data;
+  const cfg = parsed.data;
   const session = await auth();
   const userId = session?.user?.id ?? null;
 
-  // Verifica limites se autenticado
   if (userId) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
-        id: true,
-        plan: true,
-        trialEndsAt: true,
-        stripeSubscriptionId: true,
-        stripeCurrentPeriodEnd: true,
-        simulationsThisMonth: true,
-        simulationsResetAt: true,
+        id: true, plan: true, trialEndsAt: true,
+        stripeSubscriptionId: true, stripeCurrentPeriodEnd: true,
+        simulationsThisMonth: true, simulationsResetAt: true,
       },
     });
-
     if (user) {
       const check = await checkUsageLimit(user);
       if (!check.allowed) {
@@ -47,22 +42,18 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Gera perguntas via Claude API
-  const questions = await generateQuestions(jobTitle, company, experienceLevel, pesquisaEmpresa);
+  const questions = await generateSeminarioQuestions(cfg);
 
-  // Persiste sessão + perguntas
   const simSession = await prisma.simulationSession.create({
     data: {
       userId,
-      jobTitle,
-      company,
-      experienceLevel,
-      pesquisaEmpresa: pesquisaEmpresa ?? null,
+      tipo: "SEMINARIO_INDIVIDUAL",
+      config: cfg,
+      // campos obrigatórios legados com defaults
+      jobTitle: cfg.tema,
+      company: cfg.disciplina,
       questions: {
-        create: questions.map((question, i) => ({
-          question,
-          orderIndex: i,
-        })),
+        create: questions.map((question, i) => ({ question, orderIndex: i })),
       },
     },
     include: { questions: { orderBy: { orderIndex: "asc" } } },

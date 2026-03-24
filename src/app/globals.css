@@ -2,14 +2,24 @@
 
 /* design-system:start */
 :root {
-  --color-primary: #5DE08A;
-  --color-bg: #F7F7F2;
+  --color-primary: #1D9E75;
+  --color-accent: #534AB7;
+  --color-bg: #F5F5F0;
   --color-surface: #FFFFFF;
   --color-textPrimary: #111312;
   --color-textSecondary: #6B7280;
   --color-border: #E5E7EB;
   --color-error: #EF4444;
   --color-success: #22C55E;
+  --color-warning: #FBBF24;
+  --color-successBg: #DCFCE7;
+  --color-successText: #166534;
+  --color-warningBg: #FEF9C3;
+  --color-warningText: #854D0E;
+  --color-googleBlue: #4285F4;
+  --color-googleGreen: #34A853;
+  --color-googleYellow: #FBBC05;
+  --color-googleRed: #EA4335;
   --radius-sm: 0.375rem;
   --radius-md: 0.75rem;
   --radius-lg: 1rem;
