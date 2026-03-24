@@ -112,23 +112,22 @@ function ScoreRing({ score }: { score: number }) {
 export function ResultadoClient({ sessionId, jobTitle, company, score, strongPoint, improvementPoint }: Props) {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
 
   const shareText = `Acabei de simular minha entrevista para ${jobTitle} na ${company} com o Dicto e tirei ${score}/100! 🚀\n${typeof window !== "undefined" ? window.location.href : ""}`;
 
   async function handleShare() {
-    if (navigator.share) {
+    if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({ text: shareText, url: window.location.href });
         return;
-      } catch {
-        // usuário cancelou ou share falhou — cai no fallback
-      }
+      } catch { /* cancelado pelo usuário — segue para clipboard */ }
     }
     try {
       await navigator.clipboard.writeText(shareText);
-      alert("Link copiado!");
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
     } catch {
-      // clipboard bloqueado (ex: localhost sem HTTPS) — abre modal
       setShowModal(true);
     }
   }
@@ -209,9 +208,9 @@ export function ResultadoClient({ sessionId, jobTitle, company, score, strongPoi
           <button
             onClick={handleShare}
             className="w-full rounded-xl py-3.5 text-sm font-semibold border transition-colors hover:bg-gray-50"
-            style={{ borderColor: "var(--color-border)", color: "var(--color-textPrimary)" }}
+            style={{ borderColor: "var(--color-border)", color: shareCopied ? "var(--color-primary)" : "var(--color-textPrimary)" }}
           >
-            Compartilhar resultado 🚀
+            {shareCopied ? "Copiado ✓" : "Compartilhar resultado 🚀"}
           </button>
         </div>
       </div>

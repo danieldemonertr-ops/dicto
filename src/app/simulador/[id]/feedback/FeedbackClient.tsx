@@ -106,6 +106,7 @@ export function FeedbackClient({
 }: Props) {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
   const isSeminario = tipo === "SEMINARIO_INDIVIDUAL";
   const isAcademico = ["SEMINARIO_INDIVIDUAL", "APRESENTACAO_DISCIPLINA", "TRABALHO_GRUPO"].includes(tipo);
   const isPessoal = tipo === "APRESENTACAO_PESSOAL";
@@ -113,16 +114,20 @@ export function FeedbackClient({
   const shareText = `Acabei de simular minha entrevista para ${jobTitle} na ${company} com o Dicto e tirei ${score}/100! 🚀\n${typeof window !== "undefined" ? window.location.href : ""}`;
 
   async function handleShare() {
-    if (navigator.share) {
+    // Tenta Web Share API (mobile nativo)
+    if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({ text: shareText, url: window.location.href });
         return;
-      } catch { /* cancelado */ }
+      } catch { /* cancelado pelo usuário — segue para clipboard */ }
     }
+    // Tenta clipboard — mostra feedback inline no botão
     try {
       await navigator.clipboard.writeText(shareText);
-      alert("Link copiado!");
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
     } catch {
+      // Clipboard bloqueado (ex: iframe, HTTP) — abre modal com texto
       setShowModal(true);
     }
   }
@@ -250,9 +255,9 @@ export function FeedbackClient({
             <button
               onClick={handleShare}
               className="w-full rounded-xl py-3.5 text-sm font-semibold transition-opacity hover:opacity-80"
-              style={{ color: "var(--color-textSecondary)" }}
+              style={{ color: shareCopied ? "var(--color-primary)" : "var(--color-textSecondary)" }}
             >
-              Compartilhar resultado 🚀
+              {shareCopied ? "Copiado ✓" : "Compartilhar resultado 🚀"}
             </button>
           </div>
         </div>
