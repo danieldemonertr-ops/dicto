@@ -12,11 +12,8 @@ export function middleware(request: NextRequest) {
     request.cookies.get("__Secure-authjs.session-token")?.value ||
     request.cookies.get("authjs.session-token")?.value;
 
-  // Hub: usuário logado vai direto pro dashboard
+  // Hub deslogado: sempre acessível, independente de auth
   if (pathname === "/hub" || pathname.startsWith("/hub/")) {
-    if (sessionToken) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
-    }
     return NextResponse.next();
   }
 

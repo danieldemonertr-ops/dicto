@@ -1,10 +1,12 @@
+import { auth } from "@/lib/auth";
 import { HubClient } from "./HubClient";
 
 export const metadata = {
-  title: "O que vai fazer no Dicto? — Dicto",
+  title: "Começar — Dicto",
 };
 
-export default function HubPage() {
-  // Redirect de usuários logados é feito pelo middleware
-  return <HubClient />;
+export default async function HubPage() {
+  const session = await auth();
+  const isLoggedIn = !!session?.user;
+  return <HubClient isLoggedIn={isLoggedIn} />;
 }

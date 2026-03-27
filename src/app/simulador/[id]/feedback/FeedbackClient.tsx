@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 
 type Props = {
@@ -15,6 +15,7 @@ type Props = {
   improvementPoint: string;
   dicaAcionavel: string;
   resumoGeral: string;
+  pending?: boolean;
 };
 
 function ScoreRing({ score }: { score: number }) {
@@ -102,7 +103,7 @@ function CopyModal({ text, onClose }: { text: string; onClose: () => void }) {
 
 export function FeedbackClient({
   sessionId, tipo, tipoLabel, backUrl, jobTitle, company, score,
-  strongPoint, improvementPoint, dicaAcionavel, resumoGeral,
+  strongPoint, improvementPoint, dicaAcionavel, resumoGeral, pending,
 }: Props) {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
@@ -112,6 +113,47 @@ export function FeedbackClient({
   const isPessoal = tipo === "APRESENTACAO_PESSOAL";
 
   const shareText = `Acabei de simular minha entrevista para ${jobTitle} na ${company} com o Dicto e tirei ${score}/100! 🚀\n${typeof window !== "undefined" ? window.location.href : ""}`;
+
+  React.useEffect(() => {
+    if (!pending) return;
+
+    // Dispara complete imediatamente ao chegar na página com pending=true.
+    // Cobre o caso em que o fetch anterior foi cancelado (navegação) ou
+    // que o Vercel matou a função por timeout.
+    fetch(`/api/simulation/${sessionId}/complete`, { method: "POST" })
+      .then(() => router.refresh())
+      .catch(() => {});
+
+    // Continua polling até o resultado aparecer
+    const interval = setInterval(() => {
+      router.refresh();
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [pending, router, sessionId]);
+
+  if (pending) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center px-4" style={{ background: "var(--color-bg)" }}>
+        <div className="flex flex-col items-center gap-4 text-center">
+          <div
+            className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl animate-spin"
+            style={{ background: "var(--color-primary)", animationDuration: "2s" }}
+          >
+            🧠
+          </div>
+          <div className="flex flex-col gap-1">
+            <p className="text-base font-semibold" style={{ color: "var(--color-textPrimary)" }}>
+              Analisando suas respostas...
+            </p>
+            <p className="text-sm" style={{ color: "var(--color-textSecondary)" }}>
+              O feedback ficará pronto em alguns segundos
+            </p>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   async function handleShare() {
     // Tenta Web Share API (mobile nativo)
@@ -239,25 +281,25 @@ export function FeedbackClient({
           {/* CTAs */}
           <div className="flex flex-col gap-3 pt-1">
             <button
-              onClick={() => router.push(backUrl)}
+              onClick={handleShare}
               className="w-full rounded-xl py-3.5 text-sm font-semibold transition-opacity hover:opacity-90"
               style={{ background: "var(--color-primary)", color: "white" }}
             >
-              {tipo === "TRABALHO_GRUPO" ? "Praticar minha parte novamente" : "Praticar novamente"}
+              {shareCopied ? "Copiado ✓" : "Compartilhar resultado 🚀"}
+            </button>
+            <button
+              onClick={() => router.push(backUrl)}
+              className="w-full rounded-xl py-3.5 text-sm font-semibold border transition-colors hover:opacity-80"
+              style={{ borderColor: "var(--color-border)", color: "var(--color-textPrimary)", background: "var(--color-surface)" }}
+            >
+              {tipo === "TRABALHO_GRUPO" ? "Fazer mais um exercício" : "Fazer mais um exercício"}
             </button>
             <button
               onClick={() => router.push("/dashboard")}
-              className="w-full rounded-xl py-3.5 text-sm font-semibold border transition-colors hover:opacity-80"
-              style={{ borderColor: "var(--color-border)", color: "var(--color-textPrimary)" }}
+              className="w-full py-2.5 text-sm font-medium transition-opacity hover:opacity-70"
+              style={{ color: "var(--color-textSecondary)" }}
             >
-              Ver outros contextos
-            </button>
-            <button
-              onClick={handleShare}
-              className="w-full rounded-xl py-3.5 text-sm font-semibold transition-opacity hover:opacity-80"
-              style={{ color: shareCopied ? "var(--color-primary)" : "var(--color-textSecondary)" }}
-            >
-              {shareCopied ? "Copiado ✓" : "Compartilhar resultado 🚀"}
+              Ir para o Hub →
             </button>
           </div>
         </div>

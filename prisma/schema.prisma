@@ -35,10 +35,27 @@ model User {
   // Onboarding
   onboardingCompletedAt DateTime?
 
-  accounts    Account[]
-  sessions    Session[]
-  simulations SimulationSession[]
-  profile     UserProfile?
+  // Gamification
+  username       String?  @unique
+  bio            String?
+  points         Int      @default(0)
+  currentStreak  Int      @default(0)
+  longestStreak  Int      @default(0)
+  lastActivityAt DateTime?
+
+  accounts         Account[]
+  sessions         Session[]
+  simulations      SimulationSession[]
+  profile          UserProfile?
+  badges           UserBadge[]
+  pointEvents      PointEvent[]
+  groupMembers     GroupMember[]
+  trainingPlans    TrainingPlan[]
+  ownedGroups      Group[]             @relation("GroupOwner")
+  tasksCreated     GroupTask[]         @relation("TaskCreator")
+  tasksAssigned    GroupTask[]         @relation("TaskAssignee")
+  activityLogs     GroupActivityLog[]  @relation("ActivityActor")
+  notifications    Notification[]
 
   @@map("users")
 }
@@ -117,8 +134,8 @@ enum Plan {
 model SimulationSession {
   id               String   @id @default(cuid())
   userId           String?
-  tipo             String   @default("ENTREVISTA_ESTAGIO") // "ENTREVISTA_ESTAGIO" | "SEMINARIO_INDIVIDUAL"
-  config           Json?    // dados específicos do contexto
+  tipo             String   @default("ENTREVISTA_ESTAGIO")
+  config           Json?
 
   // campos legados — entrevista de estágio
   jobTitle         String   @default("")
@@ -169,4 +186,211 @@ enum ExperienceLevel {
   NO_EXPERIENCE
   SOME_EXPERIENCE
   EXPERIENCED
+}
+
+// ─── Gamification ────────────────────────────────────────────────────────────
+
+enum BadgeType {
+  BATMAN
+  GALO
+  POLVO
+  MARATONISTA
+  SPEEDRUN
+  SEM_DORMIR
+  CHAD
+  NPC_NAO
+  GIGACHAD
+  MAIN_CHARACTER
+  SKILL_ISSUE_RESOLVIDO
+}
+
+model UserBadge {
+  id       String    @id @default(cuid())
+  userId   String
+  badge    BadgeType
+  earnedAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badge])
+  @@map("user_badges")
+}
+
+model PointEvent {
+  id        String   @id @default(cuid())
+  userId    String
+  points    Int
+  reason    String   // "daily_checkin" | "simulation_complete" | "group_activity"
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("point_events")
+}
+
+// ─── Groups ───────────────────────────────────────────────────────────────────
+
+model Group {
+  id            String    @id @default(cuid())
+  name          String
+  description   String?
+  discipline    String?
+  imageUrl      String?
+  deliveryDate  DateTime?
+  ownerId       String
+  inviteCode    String    @unique @default(cuid())
+  currentStreak Int       @default(0)
+  longestStreak Int       @default(0)
+  lastStreakAt  DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  owner        User               @relation("GroupOwner", fields: [ownerId], references: [id])
+  members      GroupMember[]
+  projects     GroupProject[]
+  tasks        GroupTask[]
+  activityLogs GroupActivityLog[]
+
+  @@map("groups")
+}
+
+model GroupMember {
+  id       String    @id @default(cuid())
+  groupId  String
+  userId   String
+  role     GroupRole @default(MEMBER)
+  joinedAt DateTime  @default(now())
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+  @@map("group_members")
+}
+
+enum GroupRole {
+  MEMBER
+  ADMIN
+}
+
+model GroupProject {
+  id               String    @id @default(cuid())
+  groupId          String
+  title            String
+  presentationDate DateTime?
+  createdAt        DateTime  @default(now())
+
+  group Group             @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  parts GroupProjectPart[]
+
+  @@map("group_projects")
+}
+
+model GroupProjectPart {
+  id        String   @id @default(cuid())
+  projectId String
+  userId    String
+  title     String
+  createdAt DateTime @default(now())
+
+  project GroupProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("group_project_parts")
+}
+
+// ─── Group Tasks & Activity Log ───────────────────────────────────────────────
+
+enum TaskStatus {
+  OPEN
+  IN_PROGRESS
+  DONE
+}
+
+enum ActivityAction {
+  GROUP_CREATED
+  MEMBER_ADDED
+  TASK_CREATED
+  TASK_ASSIGNED
+  TASK_COMPLETED
+}
+
+model GroupTask {
+  id           String     @id @default(cuid())
+  groupId      String
+  title        String
+  deadline     DateTime?
+  assignedToId String?
+  status       TaskStatus @default(OPEN)
+  createdById  String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  group      Group            @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  createdBy  User             @relation("TaskCreator", fields: [createdById], references: [id])
+  assignedTo User?            @relation("TaskAssignee", fields: [assignedToId], references: [id])
+  logs       GroupActivityLog[]
+
+  @@map("group_tasks")
+}
+
+model GroupActivityLog {
+  id        String         @id @default(cuid())
+  groupId   String
+  taskId    String?
+  actorId   String
+  action    ActivityAction
+  detail    String?
+  createdAt DateTime       @default(now())
+
+  group Group      @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  task  GroupTask? @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  actor User       @relation("ActivityActor", fields: [actorId], references: [id])
+
+  @@map("group_activity_logs")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  body      String
+  read      Boolean  @default(false)
+  groupId   String?
+  taskId    String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+// ─── Training Plan ────────────────────────────────────────────────────────────
+
+model TrainingPlan {
+  id           String   @id @default(cuid())
+  userId       String
+  title        String
+  targetDate   DateTime
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  user User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  days TrainingPlanDay[]
+
+  @@map("training_plans")
+}
+
+model TrainingPlanDay {
+  id          String    @id @default(cuid())
+  planId      String
+  dayNumber   Int
+  date        DateTime
+  focus       String
+  description String?   @db.Text
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+
+  plan TrainingPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@map("training_plan_days")
 }

@@ -28,7 +28,7 @@ const CHECK_GRAY = (
 );
 
 export function PricingSection() {
-  const [annual, setAnnual] = useState(false);
+  const [annual, setAnnual] = useState(true);
 
   const proMonthly = "R$ 19,90";
   const proAnnual = "R$ 14,90";
@@ -81,12 +81,15 @@ export function PricingSection() {
           </span>
         </div>
 
-        {/* Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 items-stretch">
+        {/* Cards — mobile: horizontal scroll (Gratuito first), desktop: 3-col grid */}
+        <p className="sm:hidden text-center text-xs pb-1" style={{ color: "var(--color-textSecondary)" }}>
+          ← arraste para ver outros planos →
+        </p>
+        <div className="flex overflow-x-auto gap-4 pb-3 snap-x snap-mandatory sm:grid sm:grid-cols-3 sm:gap-5 sm:overflow-visible sm:pb-0 items-stretch">
 
           {/* ── Gratuito ─────────────────────────────────────────── */}
           <div
-            className="rounded-2xl p-7 flex flex-col gap-5 border"
+            className="rounded-2xl p-7 flex-shrink-0 w-[82vw] sm:w-auto snap-center flex flex-col gap-5 border"
             style={{
               background: "var(--color-surface)",
               borderColor: "var(--color-border)",
@@ -134,30 +137,30 @@ export function PricingSection() {
             </Link>
           </div>
 
-          {/* ── PRO (destaque) ───────────────────────────────────── */}
+          {/* ── PRO (destaque) ────────────────────────────────────── */}
           <div
-            className="rounded-2xl p-7 flex flex-col gap-5 relative overflow-hidden"
+            className="rounded-2xl p-7 flex-shrink-0 w-[82vw] sm:w-auto snap-center flex flex-col gap-5 relative overflow-hidden"
             style={{
-              background: "#1D9E75",
-              boxShadow: "0 8px 32px rgba(29,158,117,0.35)",
+              background: "#5DE08A",
+              boxShadow: "0 8px 32px rgba(93,224,138,0.35)",
             }}
           >
             {/* Badge recomendado */}
             <div
               className="absolute top-4 right-4 flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full"
-              style={{ background: "rgba(255,255,255,0.2)", color: "#fff" }}
+              style={{ background: "rgba(0,0,0,0.12)", color: "#fff" }}
             >
               ⭐ Recomendado
             </div>
 
             <div className="flex flex-col gap-1">
-              <p className="text-sm font-semibold text-white/80">PRO</p>
+              <p className="text-sm font-semibold" style={{ color: "rgba(0,0,0,0.6)" }}>PRO</p>
               <div className="flex items-baseline gap-1 mt-1">
-                <span className="text-4xl font-bold text-white">{proPrice}</span>
+                <span className="text-4xl font-bold" style={{ color: "#111312" }}>{proPrice}</span>
               </div>
-              <p className="text-xs mt-0.5 text-white/70">{proPeriod}</p>
+              <p className="text-xs mt-0.5" style={{ color: "rgba(0,0,0,0.55)" }}>{proPeriod}</p>
               {annual && (
-                <p className="text-xs font-semibold mt-1" style={{ color: "rgba(255,255,255,0.9)" }}>
+                <p className="text-xs font-semibold mt-1" style={{ color: "rgba(0,0,0,0.7)" }}>
                   Economize R$ 60 por ano
                 </p>
               )}
@@ -172,7 +175,7 @@ export function PricingSection() {
                 "Histórico completo",
                 "Cancele quando quiser",
               ].map((f) => (
-                <li key={f} className="flex items-center gap-2 text-sm text-white">
+                <li key={f} className="flex items-center gap-2 text-sm" style={{ color: "#111312" }}>
                   {CHECK_WHITE}
                   {f}
                 </li>
@@ -182,7 +185,7 @@ export function PricingSection() {
             <Link
               href="/settings/billing"
               className="w-full rounded-xl py-3 text-sm font-semibold text-center transition-opacity hover:opacity-90 mt-auto"
-              style={{ background: "#fff", color: "#1D9E75" }}
+              style={{ background: "#111312", color: "#5DE08A" }}
             >
               Assinar PRO
             </Link>
@@ -190,7 +193,7 @@ export function PricingSection() {
 
           {/* ── Empresa ──────────────────────────────────────────── */}
           <div
-            className="rounded-2xl p-7 flex flex-col gap-5 border"
+            className="rounded-2xl p-7 flex-shrink-0 w-[82vw] sm:w-auto snap-center flex flex-col gap-5 border"
             style={{
               background: "var(--color-surface)",
               borderColor: "var(--color-border)",

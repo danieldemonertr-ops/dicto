@@ -2,6 +2,7 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { LandingNav } from "./LandingNav";
 import { FeaturesSection } from "./FeaturesSection";
+import { TestimonialSection } from "./TestimonialSection";
 import { PricingSection } from "./PricingSection";
 import { FooterSection } from "./FooterSection";
 
@@ -92,6 +93,7 @@ export default async function Home() {
       <LandingHeader />
       <Hero />
       <FeaturesSection />
+      <TestimonialSection />
       <PricingSection />
       <FooterSection />
     </div>

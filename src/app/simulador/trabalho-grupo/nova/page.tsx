@@ -94,6 +94,17 @@ export default function TrabalhoGrupoNovaPage() {
                 );
               })}
             </div>
+            {tamanhoGrupo && (
+              <div
+                className="flex items-start gap-2.5 rounded-xl p-3.5 mt-1"
+                style={{ background: "rgba(29,158,117,0.06)", border: "1px solid rgba(29,158,117,0.2)" }}
+              >
+                <span className="text-base shrink-0">👥</span>
+                <p className="text-xs leading-relaxed" style={{ color: "var(--color-textSecondary)" }}>
+                  Ao fazer login, você poderá criar um grupo e gerenciar a atividade de cada participante — quem apresenta o quê, prazos e progresso do time.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Sua parte */}

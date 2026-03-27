@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { FeedbackClient } from "./FeedbackClient";
 
@@ -13,8 +13,7 @@ const TIPO_LABELS: Record<string, string> = {
 const TIPO_BACK_URLS: Record<string, string> = {
   ENTREVISTA_ESTAGIO: "/simulador/nova",
   SEMINARIO_INDIVIDUAL: "/simulador/seminario/nova",
-  APRESENTACAO_DISCIPLINA: "/simulador/apresentacao-disciplina/nova",
-  APRESENTACAO_PESSOAL: "/simulador/apresentacao-pessoal/nova",
+  APRESENTACAO_DISCIPLINA: "/hub/apresentacao",
   TRABALHO_GRUPO: "/simulador/trabalho-grupo/nova",
 };
 
@@ -32,23 +31,25 @@ export default async function FeedbackPage({ params }: { params: Promise<{ id: s
   });
 
   if (!session) notFound();
-  if (!session.completedAt) redirect(`/simulador/${sessionId}/simulacao`);
+
+  const pending = !session.completedAt;
 
   const cfg = session.config as Record<string, string> | null;
 
-  // Monta título e subtítulo conforme o tipo
-  let displayTitle = session.jobTitle;
-  let displaySubtitle = session.company;
+  let displayTitle = session.jobTitle ?? "";
+  let displaySubtitle = session.company ?? "";
 
-  if (session.tipo === "SEMINARIO_INDIVIDUAL" || session.tipo === "APRESENTACAO_DISCIPLINA") {
-    displayTitle = cfg?.tema ?? session.jobTitle;
-    displaySubtitle = cfg?.disciplina ?? session.company;
-  } else if (session.tipo === "APRESENTACAO_PESSOAL") {
-    displayTitle = "Apresentação Pessoal";
-    displaySubtitle = session.company; // já é o label do contexto
-  } else if (session.tipo === "TRABALHO_GRUPO") {
-    displayTitle = cfg?.suaParte ?? session.jobTitle;
-    displaySubtitle = `${cfg?.disciplina ?? session.company} · Trabalho em Grupo`;
+  if (!pending) {
+    if (session.tipo === "SEMINARIO_INDIVIDUAL" || session.tipo === "APRESENTACAO_DISCIPLINA") {
+      displayTitle = cfg?.tema ?? session.jobTitle ?? "";
+      displaySubtitle = cfg?.disciplina ?? session.company ?? "";
+    } else if (session.tipo === "APRESENTACAO_PESSOAL") {
+      displayTitle = "Apresentação Pessoal";
+      displaySubtitle = session.company ?? "";
+    } else if (session.tipo === "TRABALHO_GRUPO") {
+      displayTitle = cfg?.suaParte ?? session.jobTitle ?? "";
+      displaySubtitle = `${cfg?.disciplina ?? session.company ?? ""} · Trabalho em Grupo`;
+    }
   }
 
   return (
@@ -64,6 +65,7 @@ export default async function FeedbackPage({ params }: { params: Promise<{ id: s
       improvementPoint={session.improvementPoint ?? ""}
       dicaAcionavel={session.dicaAcionavel ?? ""}
       resumoGeral={session.resumoGeral ?? ""}
+      pending={pending}
     />
   );
 }

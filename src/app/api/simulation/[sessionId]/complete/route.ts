@@ -8,6 +8,7 @@ import {
 } from "@/lib/claude";
 import { auth } from "@/lib/auth";
 import { incrementUsage } from "@/lib/limits";
+import { processSimulationPoints, checkAndAwardBadges } from "@/lib/gamification";
 
 export async function POST(
   _req: NextRequest,
@@ -66,10 +67,20 @@ export async function POST(
     data: { score, strongPoint, improvementPoint, dicaAcionavel, resumoGeral, completedAt: new Date() },
   });
 
-  // Incrementa uso se usuário autenticado
+  // Incrementa uso + gamificação se usuário autenticado
   const session = await auth();
-  if (session?.user?.id && simSession.userId === session.user.id) {
-    await incrementUsage(session.user.id);
+  const userId = session?.user?.id;
+  if (userId && simSession.userId === userId) {
+    const completedAt = new Date();
+    const durationMs = simSession.createdAt
+      ? completedAt.getTime() - new Date(simSession.createdAt).getTime()
+      : undefined;
+
+    await Promise.all([
+      incrementUsage(userId),
+      processSimulationPoints(userId, score),
+      checkAndAwardBadges(userId, { score, durationMs, completedAt }),
+    ]);
   }
 
   return NextResponse.json({ score, strongPoint, improvementPoint, dicaAcionavel, resumoGeral });

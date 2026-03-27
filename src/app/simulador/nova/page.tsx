@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { LoadingOverlay } from "@/components/ui/loading-overlay";
 
 const EXPERIENCE_OPTIONS = [
   { value: "NO_EXPERIENCE", label: "Nenhuma experiência", desc: "Nunca trabalhei ou estagiei" },
@@ -64,6 +65,8 @@ export default function SimuladorNovaPage() {
   }
 
   return (
+    <>
+    {loading && <LoadingOverlay message="Gerando perguntas com IA..." />}
     <main
       className="flex min-h-screen flex-col items-center justify-center px-4 py-12"
       style={{ background: "var(--color-bg)" }}
@@ -203,5 +206,6 @@ export default function SimuladorNovaPage() {
         </form>
       </div>
     </main>
+    </>
   );
 }
